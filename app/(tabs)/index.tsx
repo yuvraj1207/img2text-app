@@ -1,4 +1,5 @@
-import * as FileSystem from "expo-file-system";
+
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImageManipulator from "expo-image-manipulator";
 import React, { useState } from "react";
 import {
@@ -119,6 +120,7 @@ export default function HomeScreen() {
         compressedUri.startsWith("file://") ||
         compressedUri.startsWith("/")
       ) {
+        // Use expo-file-system to read file as base64
         base64 = await FileSystem.readAsStringAsync(compressedUri, {
           encoding: "base64",
         });
