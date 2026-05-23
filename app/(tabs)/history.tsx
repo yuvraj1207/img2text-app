@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 32,
     fontWeight: "800",
-    color: "#7DAACB", 
+    color: "#141414", 
     textAlign: "center",
     letterSpacing: -0.5,
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20,
     borderLeftWidth: 6,
-    borderLeftColor: "#7DAACB",
+    borderLeftColor: "#141414",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,

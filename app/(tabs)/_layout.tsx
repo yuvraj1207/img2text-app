@@ -17,7 +17,7 @@ export default function StackLayout() {
         headerTitleStyle: {
           fontWeight: '800',
           color: '#141414', 
-          fontSize: 32, // Bumped from 20 to 22 for better visual presence
+          fontSize: 24, // Bumped from 20 to 22 for better visual presence
         },
         headerTitleAlign: 'center',
         headerTintColor: '#141414', 

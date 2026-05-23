@@ -11,10 +11,16 @@
     "preview": {
       "distribution": "internal",
       "environment": "preview",
-      "node": "20.19.4"
+      "node": "20.19.4",
+      "env": {
+        "EXPO_PUBLIC_OCR_API_KEY": "K86884203488957"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_OCR_API_KEY": "K86884203488957"
+      }
     }
   },
   "submit": {
