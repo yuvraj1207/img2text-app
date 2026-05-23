@@ -1,35 +1,55 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
+import { Stack, Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function StackLayout() {
   return (
-    <Tabs
+    <Stack
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
+        // =========================
+        // HEADER STYLING (Top)
+        // =========================
+        headerStyle: {
+          backgroundColor: '#FFFDEB', 
+        },
+        headerShadowVisible: false, // Disables native platform shadows to keep it clean
+        headerTitleStyle: {
+          fontWeight: '800',
+          color: '#141414', 
+          fontSize: 32, // Bumped from 20 to 22 for better visual presence
+        },
+        headerTitleAlign: 'center',
+        headerTintColor: '#141414', 
+      }}
+    >
+      {/* SCANNER SCREEN (Main) */}
+      <Stack.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'TextLens Scanner',
+          headerRight: () => (
+            <Link href="/history" asChild>
+              <Pressable 
+                hitSlop={15} 
+                // Added explicit margin right to pull the icon away from the glass edge
+                style={{ marginRight: 24 }} 
+              >
+                {/* Increased size from 28 to 32 to make it a distinct touch target */}
+                <Ionicons name="time-outline" size={40} color="#141414" />
+              </Pressable>
+            </Link>
+          ),
         }}
       />
-      <Tabs.Screen
-        name="explore"
+
+      {/* HISTORY SCREEN */}
+      <Stack.Screen
+        name="history"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Scan History',
         }}
       />
-    </Tabs>
+    </Stack>
   );
 }
