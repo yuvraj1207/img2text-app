@@ -19,7 +19,7 @@ export default function StackLayout() {
           color: '#141414', 
           fontSize: 24, // Bumped from 20 to 22 for better visual presence
         },
-        headerTitleAlign: 'center',
+        headerTitleAlign: 'left',
         headerTintColor: '#141414', 
       }}
     >
@@ -36,7 +36,7 @@ export default function StackLayout() {
                 style={{ marginRight: 24 }} 
               >
                 {/* Increased size from 28 to 32 to make it a distinct touch target */}
-                <Ionicons name="time-outline" size={40} color="#141414" />
+                <Ionicons name="document-text" size={35} color="#141414" />
               </Pressable>
             </Link>
           ),
