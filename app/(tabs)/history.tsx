@@ -5,6 +5,9 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Pressable,
 } from "react-native";
 import axios from "axios";
 
@@ -15,20 +18,20 @@ type Item = {
   created_at: string;
 };
 
-// ⚠️ REMEMBER TO REPLACE THIS WITH YOUR ACTUAL RENDER BACKEND URL
 const BACKEND_URL = "https://img2text-backend.onrender.com";
 
 export default function HistoryScreen() {
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // State to handle which item is currently being viewed in full
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
- 
   const fetchHistory = async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${BACKEND_URL}/texts`);
       
-      // Look for the array inside res.data.data
       if (res.data && Array.isArray(res.data.data)) {
         setData(res.data.data);
       } else {
@@ -42,85 +45,110 @@ export default function HistoryScreen() {
       setLoading(false);
     }
   };
-  //   try {
-  //     setLoading(true);
-  //     const res = await axios.get(`${BACKEND_URL}/texts`);
-      
-  //     // Look at what the server returned and make sure it turns into a clean array
-  //     if (Array.isArray(res.data)) {
-  //       setData(res.data);
-  //     } else if (res.data && Array.isArray(res.data.texts)) {
-  //       // Fallback case: If your server returns an object like { texts: [...] }
-  //       setData(res.data.texts);
-  //     } else {
-  //       // If the server returns something weird, default to an empty list instead of crashing
-  //       console.log("Backend did not return an array:", res.data);
-  //       setData([]);
-  //     }
-  //   } catch (err) {
-  //     console.log("Error loading database history:", err);
-  //     setData([]); // Set empty array on failure so map doesn't crash
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   useEffect(() => {
     fetchHistory();
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      
-      {/* HEADER */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Scan History</Text>
-        <Text style={styles.subHeader}>
-          All your scanned documents are saved here
-        </Text>
-      </View>
-
-      {/* LOADING */}
-      {loading ? (
-        <ActivityIndicator size="large" color="#CE2626" style={{ marginTop: 40 }} />
-      ) : !data || data.length === 0 ? (
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
         
-        /* EMPTY STATE */
-        <View style={styles.emptyBox}>
-          <Text style={styles.emptyIcon}>📂</Text>
-          <Text style={styles.emptyText}>
-            No scans found yet
-          </Text>
-          <Text style={styles.emptySub}>
-            Start scanning images from the Home tab
+        {/* HEADER */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>Scan History</Text>
+          <Text style={styles.subHeader}>
+            All your scanned documents are saved here
           </Text>
         </View>
 
-      ) : (
-        
-        /* CARDS */
-        data.map((item) => (
-          <View key={item.id || Math.random().toString()} style={styles.card}>
+        {/* LOADING */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#CE2626" style={{ marginTop: 40 }} />
+        ) : !data || data.length === 0 ? (
+          
+          /* EMPTY STATE */
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyIcon}>📂</Text>
+            <Text style={styles.emptyText}>
+              No scans found yet
+            </Text>
+            <Text style={styles.emptySub}>
+              Start scanning images from the Home tab
+            </Text>
+          </View>
+
+        ) : (
+          
+          /* CARDS */
+          data.map((item) => (
+            <TouchableOpacity 
+              key={item.id || Math.random().toString()} 
+              style={styles.card}
+              activeOpacity={0.7}
+              onPress={() => setSelectedItem(item)} // Open the modal with this item
+            >
+              
+              <Text style={styles.name}>
+                {item.image_name || "Unnamed Scan"}
+              </Text>
+
+              <Text style={styles.text} numberOfLines={4}>
+                {item.extracted_text || "No text extracted"}
+              </Text>
+
+              <View style={styles.footerRow}>
+                <Text style={styles.date}>
+                  {item.created_at ? new Date(item.created_at).toLocaleString() : "Unknown date"}
+                </Text>
+              </View>
+
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
+
+      {/* DETAIL VIEW MODAL */}
+      <Modal
+        visible={!!selectedItem}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSelectedItem(null)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
             
-            <Text style={styles.name}>
-              {item.image_name || "Unnamed Scan"}
-            </Text>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {selectedItem?.image_name || "Scan Details"}
+              </Text>
+              <Pressable 
+                onPress={() => setSelectedItem(null)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </Pressable>
+            </View>
 
-            <Text style={styles.text} numberOfLines={4}>
-              {item.extracted_text || "No text extracted"}
-            </Text>
+            {/* Modal Content */}
+            <ScrollView style={styles.modalContent}>
+              <Text style={styles.fullText}>
+                {selectedItem?.extracted_text || "No text available."}
+              </Text>
+            </ScrollView>
 
-            <View style={styles.footerRow}>
-              <Text style={styles.date}>
-                {item.created_at ? new Date(item.created_at).toLocaleString() : "Unknown date"}
+            {/* Modal Footer */}
+            <View style={styles.modalFooter}>
+              <Text style={styles.modalDate}>
+                Scanned on: {selectedItem?.created_at ? new Date(selectedItem.created_at).toLocaleString() : "Unknown date"}
               </Text>
             </View>
 
           </View>
-        ))
-      )}
-
-    </ScrollView>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
@@ -214,5 +242,72 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
     lineHeight: 20,
+  },
+
+  /* MODAL STYLES */
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end", // Opens from the bottom
+  },
+  modalContainer: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    height: "80%", // Takes up 80% of the screen
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+    paddingBottom: 15,
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#141414",
+    flex: 1,
+  },
+  closeButton: {
+    backgroundColor: "#F0F0F0",
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#555",
+  },
+  modalContent: {
+    flex: 1,
+  },
+  fullText: {
+    fontSize: 16,
+    color: "#333333",
+    lineHeight: 26,
+  },
+  modalFooter: {
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    alignItems: "center",
+  },
+  modalDate: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#888",
   },
 });
